@@ -1,0 +1,38 @@
+enum Effect {
+    ALLOW
+    DENY
+}
+
+model Condition {
+    id Int @id @default(autoincrement())
+
+    conditionType  String // e.g., "StringEquals", "IpAddress"
+    conditionKey   String // e.g., "aws:SourceIp"
+    conditionValue String[] // e.g., ["192.168.1.0/24"]
+
+    policyStatement   PolicyStatement @relation(fields: [policyStatementId], references: [id])
+    policyStatementId String
+}
+
+model PolicyStatement {
+    id String @id @default(uuid())
+
+    Effect     Effect
+    Action     String[]
+    Resource   String[]
+    conditions Condition[]
+
+    policy   Policy @relation(fields: [policyId], references: [id])
+    policyId String
+}
+
+model Policy {
+    id      String @id @default(uuid())
+    Version String @default("2012-10-17")
+
+    name String @unique
+
+    statements PolicyStatement[]
+
+    RolePolicy RolePolicy[]
+}
